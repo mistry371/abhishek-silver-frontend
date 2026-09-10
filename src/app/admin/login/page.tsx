@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { InlineAlert } from "@/components/admin/ui";
+import { PasswordField } from "@/components/forms/PasswordField";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/Field";
 
@@ -41,7 +42,7 @@ function LoginForm() {
       {params.get("expired") && !error && <InlineAlert tone="info">Your session expired. Please sign in again.</InlineAlert>}
       {error && <InlineAlert>{error}</InlineAlert>}
       <TextField label="Email" type="email" autoComplete="username" required value={email} onChange={(event) => setEmail(event.target.value)} />
-      <TextField label="Password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} />
+      <PasswordField label="Password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} />
       <Button type="submit" fullWidth loading={pending} loadingText="Signing in" disabled={!email || !password}>
         Sign in
       </Button>
