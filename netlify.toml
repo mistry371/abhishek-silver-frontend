@@ -1,0 +1,9 @@
+# Netlify — Next.js is detected automatically (Netlify's Next.js runtime handles
+# server routes, the admin API proxy, image optimisation and cache revalidation).
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
