@@ -7,7 +7,7 @@ import { CloseIcon, HeartIcon, PhoneIcon, UserIcon, WhatsAppIcon } from "@/compo
 import { IconButton } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { mainNav } from "@/config/navigation";
-import { siteConfig } from "@/config/site";
+import { primaryPhone } from "@/lib/site-contact";
 import { cn } from "@/lib/utils";
 import { whatsappMessages, whatsappUrl } from "@/lib/whatsapp";
 import { useCustomer } from "@/stores/auth";
@@ -136,9 +136,9 @@ export function MobileMenu() {
           <WhatsAppIcon size={19} />
           Chat on WhatsApp
         </a>
-        <a href={siteConfig.contact.phoneHref} className="flex min-h-11 items-center gap-3 type-body-sm text-ink">
+        <a href={primaryPhone().href} className="flex min-h-11 items-center gap-3 type-body-sm text-ink">
           <PhoneIcon size={19} />
-          {siteConfig.contact.phoneDisplay}
+          {primaryPhone().display}
         </a>
       </div>
     </Dialog>

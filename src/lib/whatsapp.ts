@@ -1,11 +1,12 @@
-import { absoluteUrl, siteConfig } from "@/config/site";
+import { absoluteUrl } from "@/config/site";
+import { getSiteContact } from "@/lib/site-contact";
 
 /**
- * WhatsApp click-to-chat links. The number comes from NEXT_PUBLIC_WHATSAPP_NUMBER;
- * until it is configured, links open WhatsApp's contact picker with the message
- * pre-filled so the action still works during development.
+ * WhatsApp click-to-chat links. The number is managed in Admin → Content → Contact
+ * (falling back to NEXT_PUBLIC_WHATSAPP_NUMBER / site config). Without a number,
+ * links open WhatsApp's contact picker with the message pre-filled.
  */
-export function whatsappUrl(message: string, number: string = siteConfig.contact.whatsappNumber) {
+export function whatsappUrl(message: string, number: string = getSiteContact().whatsappNumber) {
   const text = encodeURIComponent(message);
   return number ? `https://wa.me/${number}?text=${text}` : `https://wa.me/?text=${text}`;
 }

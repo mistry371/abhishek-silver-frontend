@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { absoluteUrl, siteConfig } from "@/config/site";
 import { metalPurityLabel } from "@/lib/catalog/filters";
+import { getSiteContact } from "@/lib/site-contact";
 import type { Product } from "@/types/catalog";
 import type { ImageAsset } from "@/types/common";
 import type { BlogPost, FaqItem, StoreLocation } from "@/types/content";
@@ -47,9 +48,14 @@ export function buildMetadata({ title, description, path, image, noIndex = false
 
 const isPlaceholder = (value?: string) => !value || /0{5}|example\.com|placeholder/i.test(value);
 const isGenericSocial = (url: string) => /^https:\/\/www\.[a-z]+\.com\/$/.test(url);
+const socialProfiles = () =>
+  getSiteContact()
+    .socialLinks.map((link) => link.href)
+    .filter((url) => !isGenericSocial(url));
 
 export function organizationJsonLd() {
-  const sameAs = Object.values(siteConfig.social).filter((url) => !isGenericSocial(url));
+  const sameAs = socialProfiles();
+  const email = getSiteContact().email;
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -57,7 +63,7 @@ export function organizationJsonLd() {
     url: siteConfig.url,
     logo: absoluteUrl(siteConfig.logo.url),
     ...(sameAs.length ? { sameAs } : {}),
-    ...(!isPlaceholder(siteConfig.contact.email) ? { email: siteConfig.contact.email } : {}),
+    ...(!isPlaceholder(email) ? { email } : {}),
   };
 }
 
@@ -77,7 +83,7 @@ export function websiteJsonLd() {
 
 /** Only fields supplied by the business are emitted. */
 export function localBusinessJsonLd(store: StoreLocation) {
-  const sameAs = Object.values(siteConfig.social).filter((url) => !isGenericSocial(url));
+  const sameAs = socialProfiles();
   return {
     "@context": "https://schema.org",
     "@type": "JewelryStore",

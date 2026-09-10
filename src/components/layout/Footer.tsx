@@ -2,7 +2,8 @@ import Link from "next/link";
 import { NewsletterForm } from "@/components/forms/NewsletterForm";
 import { MailIcon, MapPinIcon, PhoneIcon, WhatsAppIcon } from "@/components/icons";
 import { footerNav, paymentMethods, type NavLink } from "@/config/navigation";
-import { directionsUrl, fullAddress, siteConfig } from "@/config/site";
+import { siteConfig } from "@/config/site";
+import { contactAddress, contactDirectionsUrl, getSiteContact } from "@/lib/site-contact";
 import { whatsappMessages, whatsappUrl } from "@/lib/whatsapp";
 import { Logo } from "./Logo";
 import { SocialLinks } from "./SocialLinks";
@@ -28,6 +29,7 @@ const contactLinkClass = "inline-flex items-start gap-3 type-body-sm text-ivory/
 
 export function Footer() {
   const year = new Date().getFullYear();
+  const contact = getSiteContact();
   return (
     <footer className="on-dark bg-onyx text-ivory/80" aria-labelledby="site-footer-title">
       <h2 id="site-footer-title" className="sr-only">
@@ -42,12 +44,12 @@ export function Footer() {
             </p>
             <ul className="mt-8 space-y-3">
               <li>
-                <a href={directionsUrl()} target="_blank" rel="noopener noreferrer" className={contactLinkClass}>
+                <a href={contactDirectionsUrl(contact)} target="_blank" rel="noopener noreferrer" className={contactLinkClass}>
                   <MapPinIcon size={16} className="mt-0.5 shrink-0" />
-                  <span className="max-w-xs">{fullAddress()}</span>
+                  <span className="max-w-xs">{contactAddress(contact)}</span>
                 </a>
               </li>
-              {siteConfig.contact.phones.map((phone) => (
+              {contact.phones.map((phone) => (
                 <li key={phone.href}>
                   <a href={phone.href} className={contactLinkClass}>
                     <PhoneIcon size={16} className="mt-0.5 shrink-0" />
@@ -55,11 +57,11 @@ export function Footer() {
                   </a>
                 </li>
               ))}
-              {siteConfig.contact.email && (
+              {contact.email && (
                 <li>
-                  <a href={`mailto:${siteConfig.contact.email}`} className={contactLinkClass}>
+                  <a href={`mailto:${contact.email}`} className={contactLinkClass}>
                     <MailIcon size={16} className="mt-0.5 shrink-0" />
-                    {siteConfig.contact.email}
+                    {contact.email}
                   </a>
                 </li>
               )}

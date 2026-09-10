@@ -4,11 +4,17 @@ import { ArrowLeftIcon, LockIcon } from "@/components/icons";
 import { ClientOverlays } from "@/components/layout/ClientOverlays";
 import { Logo } from "@/components/layout/Logo";
 import { SkipLink } from "@/components/layout/SiteChrome";
+import { SiteContactProvider } from "@/components/layout/SiteContactProvider";
 import { siteConfig } from "@/config/site";
+import { loadSiteContact } from "@/lib/api/services/site-contact";
+import { installSiteContact } from "@/lib/site-contact";
 
 /** Distraction-free chrome for checkout: conversion first. */
-export default function CheckoutLayout({ children }: { children: ReactNode }) {
+export default async function CheckoutLayout({ children }: { children: ReactNode }) {
+  const contact = await loadSiteContact();
+  installSiteContact(contact);
   return (
+    <SiteContactProvider contact={contact}>
     <div className="flex min-h-dvh flex-col bg-ivory">
       <SkipLink />
       <header className="border-b border-line bg-porcelain">
@@ -58,5 +64,6 @@ export default function CheckoutLayout({ children }: { children: ReactNode }) {
       </footer>
       <ClientOverlays />
     </div>
+    </SiteContactProvider>
   );
 }

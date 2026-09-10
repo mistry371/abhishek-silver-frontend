@@ -25,8 +25,8 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Carousel } from "@/components/ui/Carousel";
 import { Tabs } from "@/components/ui/Disclosure";
 import { Divider, SectionHeading } from "@/components/ui/primitives";
-import { siteConfig } from "@/config/site";
 import { media } from "@/lib/media";
+import { getSiteContact, primaryPhone } from "@/lib/site-contact";
 import { cn } from "@/lib/utils";
 import { whatsappMessages, whatsappUrl } from "@/lib/whatsapp";
 import type { Category, Collection, ProductSummary } from "@/types/catalog";
@@ -603,7 +603,7 @@ export function StoreVisit({ store }: { store: StoreLocation }) {
                 <p className="flex items-center gap-2 type-caption tracking-[0.16em] text-ink-soft">
                   <PhoneIcon size={15} /> Phone
                 </p>
-                <a href={siteConfig.contact.phoneHref} className="mt-3 inline-block type-body text-ink link-underline">
+                <a href={primaryPhone().href} className="mt-3 inline-block type-body text-ink link-underline">
                   {store.phone}
                 </a>
               </div>
@@ -626,7 +626,7 @@ export function StoreVisit({ store }: { store: StoreLocation }) {
                 <DirectionsIcon size={17} />
                 Get Directions
               </ButtonLink>
-              <ButtonLink href={siteConfig.contact.phoneHref} variant="outline">
+              <ButtonLink href={primaryPhone().href} variant="outline">
                 <PhoneIcon size={17} />
                 Call the Store
               </ButtonLink>
@@ -659,7 +659,7 @@ export function InstagramGallery({ posts, className }: { posts: InstagramPost[];
         <div className="flex flex-col items-center text-center" data-reveal="">
           <InstagramIcon size={26} className="text-champagne-deep" />
           <h2 id="instagram-title" className="mt-4 type-h2 text-ink">
-            Follow {siteConfig.instagramHandle}
+            Follow {getSiteContact().instagramHandle}
           </h2>
           <p className="mt-3 type-body text-muted">Styling notes, new pieces and moments from our studio.</p>
         </div>
@@ -691,7 +691,7 @@ export function InstagramGallery({ posts, className }: { posts: InstagramPost[];
           ))}
         </ul>
         <div className="mt-10 text-center">
-          <ButtonLink href={siteConfig.social.instagram} external variant="outline">
+          <ButtonLink href={getSiteContact().instagramUrl} external variant="outline">
             Follow on Instagram
           </ButtonLink>
         </div>

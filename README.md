@@ -112,6 +112,33 @@ never sends or trusts prices, stock, coupon results or payment status.
 
 ---
 
+## Admin panel (`/admin`)
+
+The business operating system lives in the same app at **`/admin`** and talks to the Node.js API
+([abhishek-silver-backend](https://github.com/mistry371/abhishek-silver-backend)).
+
+- **Modules:** Dashboard, Customers (directory + Customer 360), Products, Categories, Subcategories, Collections,
+  Inventory (stock transactions, movements, low/out of stock), Vendors, Purchases (approval → stock), Billing & Invoices,
+  Sales (in-store), Orders (status workflow, returns, refunds), Expenses (approvals, receipts, recurring), Pricing
+  (metal rates, GST, making defaults, preview, history), Coupons, Offers, Content (homepage, about, contact, social,
+  trust, Instagram, policies, testimonials, FAQs, blog), Enquiries, Reports (CSV export), Settings (business settings,
+  locations, team, roles & permissions, audit log, profile), global search and alerts.
+- **Security:** sign-in goes through `/api/admin/session`; tokens live only in httpOnly, SameSite=strict cookies and are
+  attached server-side by the `/api/admin/proxy/*` route (mutations also require an `x-admin-request` header). The
+  sidebar and actions follow the admin's role; the API enforces every permission.
+- **Live website sync:** products, prices, offers and content edited in admin refresh the storefront via
+  `POST /api/revalidate` (secret: `REVALIDATE_SECRET`). Store contact details and social links are read from the CMS.
+
+**Run locally:** start the API (`npm run dev` in the backend, port 4000), set `NEXT_PUBLIC_API_BASE_URL=http://localhost:4000/v1`
+in `.env.local`, then open http://localhost:3000/admin. Development accounts (local auth only):
+`superadmin@example.com`, `inventory@example.com`, `sales@example.com`, `content@example.com` — password `Admin@12345`.
+In production, create your own Super Admin with the backend's `npm run admin:create`.
+
+Code: `src/app/admin/**` (routes), `src/components/admin/**` (UI kit + module components), `src/lib/admin/**`
+(client, hooks, formatting, session helpers).
+
+---
+
 ## Connecting the backend
 
 Set `NEXT_PUBLIC_API_BASE_URL`. Services in `src/lib/api/services/*` then call these endpoints

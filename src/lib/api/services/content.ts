@@ -30,12 +30,12 @@ export async function getTestimonials(): Promise<Testimonial[]> {
 
 export async function getInstagramPosts(): Promise<InstagramPost[]> {
   if (USE_MOCK_API) return runMock(async () => (await mock()).getInstagramPosts(), 0);
-  return apiRequest("/content/instagram", { revalidate: CMS_REVALIDATE });
+  return apiRequest("/content/instagram", { revalidate: CMS_REVALIDATE, tags: ["content:instagram", "content"] });
 }
 
 export async function getTrustItems(): Promise<TrustItem[]> {
   if (USE_MOCK_API) return runMock(async () => (await mock()).getTrustItems(), 0);
-  return apiRequest("/content/trust", { revalidate: CMS_REVALIDATE });
+  return apiRequest("/content/trust", { revalidate: CMS_REVALIDATE, tags: ["content:trust", "content"] });
 }
 
 export async function getFaqs(): Promise<FaqItem[]> {
@@ -60,7 +60,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 
 export async function getPolicy(slug: PolicyPage["slug"]): Promise<PolicyPage | null> {
   if (USE_MOCK_API) return runMock(async () => (await mock()).getPolicy(slug), 0);
-  return apiRequest(`/content/policies/${slug}`, { revalidate: CMS_REVALIDATE });
+  return apiRequest(`/content/policies/${slug}`, { revalidate: CMS_REVALIDATE, tags: [`content:policy:${slug}`, "content"] });
 }
 
 export async function getOffers(): Promise<Offer[]> {
@@ -70,5 +70,5 @@ export async function getOffers(): Promise<Offer[]> {
 
 export async function getStoreLocation(): Promise<StoreLocation> {
   if (USE_MOCK_API) return runMock(async () => (await mock()).getStoreLocation(), 0);
-  return apiRequest("/content/store", { revalidate: CMS_REVALIDATE });
+  return apiRequest("/content/store", { revalidate: CMS_REVALIDATE, tags: ["content:store", "content"] });
 }

@@ -7,6 +7,7 @@ import { PageIntro } from "@/components/ui/PageIntro";
 import { siteConfig } from "@/config/site";
 import { getStoreLocation } from "@/lib/api";
 import { breadcrumbJsonLd, buildMetadata, localBusinessJsonLd } from "@/lib/seo";
+import { getSiteContact } from "@/lib/site-contact";
 import { whatsappMessages, whatsappUrl } from "@/lib/whatsapp";
 
 export const metadata = buildMetadata({
@@ -17,6 +18,7 @@ export const metadata = buildMetadata({
 
 export default async function ContactPage() {
   const store = await getStoreLocation();
+  const contact = getSiteContact();
   const breadcrumbs = [{ label: "Home", href: "/" }, { label: "Contact" }];
 
   return (
@@ -53,7 +55,7 @@ export default async function ContactPage() {
                 <PhoneIcon size={15} /> Phone
               </dt>
               <dd className="mt-3 space-y-1">
-                {siteConfig.contact.phones.map((phone) => (
+                {contact.phones.map((phone) => (
                   <a key={phone.href} href={phone.href} className="block w-fit type-body text-ink link-underline">
                     {phone.display}
                   </a>
@@ -86,14 +88,14 @@ export default async function ContactPage() {
                 ))}
               </dd>
             </div>
-            {siteConfig.contact.email ? (
+            {contact.email ? (
               <div className="bg-porcelain p-6">
                 <dt className="flex items-center gap-2 type-caption tracking-[0.16em] text-muted">
                   <MailIcon size={15} /> Email
                 </dt>
                 <dd className="mt-3">
-                  <a href={`mailto:${siteConfig.contact.email}`} className="break-all type-body text-ink link-underline">
-                    {siteConfig.contact.email}
+                  <a href={`mailto:${contact.email}`} className="break-all type-body text-ink link-underline">
+                    {contact.email}
                   </a>
                 </dd>
               </div>
@@ -103,8 +105,8 @@ export default async function ContactPage() {
                   <InstagramIcon size={15} /> Instagram
                 </dt>
                 <dd className="mt-3">
-                  <a href={siteConfig.social.instagram} target="_blank" rel="noopener noreferrer" className="type-body text-ink link-underline">
-                    {siteConfig.instagramHandle}
+                  <a href={contact.instagramUrl} target="_blank" rel="noopener noreferrer" className="type-body text-ink link-underline">
+                    {contact.instagramHandle}
                   </a>
                 </dd>
               </div>
