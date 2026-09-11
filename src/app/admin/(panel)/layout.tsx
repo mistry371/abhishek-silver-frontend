@@ -8,7 +8,7 @@ import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/admin/server";
 /** Protected admin area: no session cookie → sign-in. Permissions are enforced by the API. */
 export default async function AdminPanelLayout({ children }: { children: ReactNode }) {
   const store = await cookies();
-  if (!store.get(ACCESS_COOKIE)?.value && !store.get(REFRESH_COOKIE)?.value) redirect("/admin/login");
+  if (!store.get(ACCESS_COOKIE)?.value && !store.get(REFRESH_COOKIE)?.value) redirect("/login?redirect=/admin");
   return (
     <AdminSessionProvider>
       <AdminShell>

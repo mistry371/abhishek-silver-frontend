@@ -58,12 +58,12 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
   const signedOut = current?.status === "error" && current.signedOut;
 
   useEffect(() => {
-    if (signedOut) router.replace(`/admin/login?redirect=${encodeURIComponent(pathname)}`);
+    if (signedOut) router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
   }, [signedOut, router, pathname]);
 
   useEffect(() => {
     function onExpired() {
-      router.replace(`/admin/login?expired=1&redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+      router.replace(`/login?expired=1&redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
     }
     window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
@@ -72,7 +72,7 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(() => setAttempt((value) => value + 1), []);
   const signOut = useCallback(async () => {
     await fetch("/api/admin/session", { method: "DELETE" }).catch(() => undefined);
-    router.replace("/admin/login");
+    router.replace("/login?redirect=/admin");
   }, [router]);
 
   const value = useMemo<AdminSessionValue | null>(() => {

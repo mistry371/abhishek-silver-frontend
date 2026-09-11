@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { PasswordField } from "@/components/forms/PasswordField";
 import { Button } from "@/components/ui/Button";
 import { FormMessage, TextField } from "@/components/ui/Field";
 import { toast } from "@/components/ui/Toast";
 import { USE_MOCK_API } from "@/lib/api/config";
 import { isApiError, toUserMessage } from "@/lib/api/errors";
-import { login, requestOtp, verifyOtp } from "@/lib/api/services/customer";
+import { getStaffProfile, login, requestOtp, verifyOtp } from "@/lib/api/services/customer";
 import { cn } from "@/lib/utils";
 import { isValidEmail, isValidIndianMobile } from "@/lib/validation";
 import { useAuthStore, useCustomer } from "@/stores/auth";
@@ -17,18 +17,53 @@ import { usePersistHydrated } from "@/stores/hydration";
 import { completeSignIn } from "@/stores/session";
 import type { AuthSession } from "@/types/customer";
 
-export function LoginForm({ redirectTo }: { redirectTo: string }) {
+export function LoginForm({ redirectTo, notice }: { redirectTo: string; notice?: string }) {
   const router = useRouter();
   const hydrated = usePersistHydrated(useAuthStore);
   const customer = useCustomer();
   const [mode, setMode] = useState<"password" | "otp">("password");
+  const [message, setMessage] = useState(notice);
+  const signingIn = useRef(false);
+  // Customers and staff share this page; admin destinations need an admin session, not just a customer one.
+  const wantsAdmin = redirectTo.startsWith("/admin");
 
   useEffect(() => {
-    if (hydrated && customer) router.replace(redirectTo);
-  }, [hydrated, customer, redirectTo, router]);
+    if (hydrated && customer && !wantsAdmin && !signingIn.current) router.replace(redirectTo);
+  }, [hydrated, customer, wantsAdmin, redirectTo, router]);
 
-  async function onSignedIn(session: AuthSession) {
+  async function onSignedIn(session: AuthSession, password?: string) {
+    signingIn.current = true;
+    const staff = await getStaffProfile(session.accessToken);
     await completeSignIn(session);
+
+    if (staff && password) {
+      // A separate admin session (httpOnly cookies) so the storefront and admin panel never share refresh tokens.
+      const opened = await fetch("/api/admin/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: staff.email, password }),
+      })
+        .then((response) => response.ok)
+        .catch(() => false);
+      if (opened) {
+        toast({ title: `Welcome back, ${staff.name}`, tone: "success" });
+        router.replace(wantsAdmin ? redirectTo : "/admin");
+        return;
+      }
+      if (wantsAdmin) {
+        setMessage("You're signed in, but the admin panel couldn't be opened. Please try again.");
+        return;
+      }
+    } else if (staff && wantsAdmin) {
+      setMode("password");
+      setMessage("To open the admin panel, sign in with your email and password.");
+      return;
+    } else if (wantsAdmin) {
+      toast({ title: "This account doesn't have admin access.", tone: "error" });
+      router.replace("/account");
+      return;
+    }
+
     toast({ title: `Welcome back${session.customer.firstName ? `, ${session.customer.firstName}` : ""}`, tone: "success" });
     router.replace(redirectTo);
   }
@@ -62,11 +97,17 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
         </FormMessage>
       )}
 
+      {message && (
+        <FormMessage tone="info" className="mt-6">
+          {message}
+        </FormMessage>
+      )}
+
       {mode === "password" ? <PasswordLogin onSignedIn={onSignedIn} /> : <OtpLogin onSignedIn={onSignedIn} />}
 
       <p className="mt-10 border-t border-line pt-8 type-body text-muted">
         New here?{" "}
-        <Link href={`/register?redirect=${encodeURIComponent(redirectTo)}`} className="text-ink underline underline-offset-4">
+        <Link href={`/register?redirect=${encodeURIComponent(wantsAdmin ? "/account" : redirectTo)}`} className="text-ink underline underline-offset-4">
           Create an account
         </Link>
       </p>
@@ -74,7 +115,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
   );
 }
 
-function PasswordLogin({ onSignedIn }: { onSignedIn: (session: AuthSession) => Promise<void> }) {
+function PasswordLogin({ onSignedIn }: { onSignedIn: (session: AuthSession, password?: string) => Promise<void> }) {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ identifier?: string; password?: string }>({});
@@ -91,7 +132,7 @@ function PasswordLogin({ onSignedIn }: { onSignedIn: (session: AuthSession) => P
     setSubmitting(true);
     setServerError("");
     try {
-      await onSignedIn(await login({ identifier: identifier.trim(), password }));
+      await onSignedIn(await login({ identifier: identifier.trim(), password }), password);
     } catch (error) {
       setServerError(toUserMessage(error));
     } finally {

@@ -51,6 +51,17 @@ export async function verifyOtp(input: OtpVerifyInput): Promise<AuthSession> {
   return apiRequest("/auth/otp/verify", { method: "POST", body: input });
 }
 
+/** Staff sign in on the same page: returns the admin profile when the signed-in account has admin access. */
+export async function getStaffProfile(token: string): Promise<{ email: string; name: string } | null> {
+  if (USE_MOCK_API) return null;
+  try {
+    const { admin } = await apiRequest<{ admin: { email: string; name: string } }>("/admin/auth/me", { token });
+    return admin;
+  } catch {
+    return null;
+  }
+}
+
 export async function requestPasswordReset(email: string): Promise<{ ok: boolean }> {
   if (USE_MOCK_API) {
     const m = await mock();
