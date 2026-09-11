@@ -440,3 +440,10 @@
     text-decoration-thickness: 1px;
   }
 }
+
+/* Admin panel typeface: Times New Roman bold everywhere, including dialogs and toasts portalled to <body>. */
+body:has([data-admin-root]),
+body:has([data-admin-root]) * {
+  font-family: "Times New Roman", Times, serif;
+  font-weight: 700;
+}

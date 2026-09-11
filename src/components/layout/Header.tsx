@@ -177,7 +177,7 @@ export function Header() {
             </button>
           </div>
 
-          <Logo compact={scrolled} />
+          <Logo size="lg" compact={scrolled} />
 
           <div className="-mr-3 flex items-center justify-end">
             <Link
