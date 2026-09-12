@@ -7,6 +7,7 @@ import { useAdmin } from "@/components/admin/AdminSession";
 import { CollectionDialog } from "@/components/admin/catalogue/CollectionDialog";
 import { DeleteDialog, RowActions, Thumb } from "@/components/admin/catalogue/shared";
 import type { Collection } from "@/components/admin/catalogue/types";
+import { ImportAction } from "@/components/admin/ImportDialog";
 import { AdminButton, DataTable, PageHeader, StatusBadge, type Column } from "@/components/admin/ui";
 import { number } from "@/lib/admin/format";
 import { useAdminResource } from "@/lib/admin/hooks";
@@ -60,12 +61,15 @@ export default function CollectionsPage() {
         title="Collections"
         description="Curated edits shown as collection pages on the website. Assign products to collections from the product form."
         actions={
-          canManage && (
-            <AdminButton variant="primary" onClick={() => setEditing("new")}>
-              <PlusIcon size={15} />
-              New collection
-            </AdminButton>
-          )
+          <>
+            <ImportAction entity="collections" onImported={resource.reload} />
+            {canManage && (
+              <AdminButton variant="primary" onClick={() => setEditing("new")}>
+                <PlusIcon size={15} />
+                New collection
+              </AdminButton>
+            )}
+          </>
         }
       />
 

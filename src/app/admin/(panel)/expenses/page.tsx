@@ -16,6 +16,7 @@ import {
   type ExpenseSummary,
 } from "@/components/admin/expenses/types";
 import { HistoryIcon, LayersIcon } from "@/components/admin/icons";
+import { ImportAction } from "@/components/admin/ImportDialog";
 import {
   AdminButton,
   AdminLinkButton,
@@ -97,6 +98,14 @@ export default function ExpensesPage() {
             <HistoryIcon size={15} />
             Recurring
           </AdminLinkButton>
+          <ImportAction
+            entity="expenses"
+            onImported={() => {
+              list.reload();
+              summary.reload();
+              pendingTotal.reload();
+            }}
+          />
           {can("expenses:create") && (
             <AdminLinkButton href="/admin/expenses/new" variant="primary">
               <PlusIcon size={15} />

@@ -1,5 +1,6 @@
 "use client";
 
+import { ImportAction } from "@/components/admin/ImportDialog";
 import { AdminLinkButton, ErrorState, LoadingBlock, PageHeader, Tabs } from "@/components/admin/ui";
 import { ChargeRatesTab } from "@/components/admin/pricing/ChargeRatesTab";
 import { HistoryTab, RunningOffersTab } from "@/components/admin/pricing/HistoryTab";
@@ -40,6 +41,7 @@ export default function PricingPage() {
             <AdminLinkButton href="/admin/coupons" variant="ghost">
               Coupons
             </AdminLinkButton>
+            <ImportAction entity={["metal_rates", "metal_rate", "pricing", "rates"]} variant="primary" label="Import metal rates" onImported={reload} />
           </>
         }
       />

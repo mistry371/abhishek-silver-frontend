@@ -8,6 +8,7 @@ import { Thumb } from "@/components/admin/catalogue/shared";
 import type { Category, Collection, FlagKey, ProductListItem } from "@/components/admin/catalogue/types";
 import { FLAG_KEYS, flagLabels, METAL_OPTIONS, PRODUCT_STATUS_OPTIONS, purityOptions, STOCK_FILTER_OPTIONS } from "@/components/admin/catalogue/utils";
 import { SelectInput } from "@/components/admin/fields";
+import { ImportAction } from "@/components/admin/ImportDialog";
 import { AdminButton, AdminLinkButton, ConfirmDialog, DataTable, FilterBar, FilterSelect, PageHeader, Pagination, SearchBox, StatusBadge, type Column } from "@/components/admin/ui";
 import { toast } from "@/components/ui/Toast";
 import { adminApi, AdminApiError, errorMessage, type Paginated } from "@/lib/admin/client";
@@ -111,12 +112,15 @@ export default function ProductsPage() {
         title="Products"
         description={data ? `${number(data.total)} ${data.total === 1 ? "product" : "products"}${hasFilters ? " match these filters" : " in the catalogue"}.` : "Your jewellery catalogue."}
         actions={
-          can("products:create") && (
-            <AdminLinkButton href="/admin/products/new" variant="primary">
-              <PlusIcon size={15} />
-              New product
-            </AdminLinkButton>
-          )
+          <>
+            <ImportAction entity="products" onImported={list.reload} />
+            {can("products:create") && (
+              <AdminLinkButton href="/admin/products/new" variant="primary">
+                <PlusIcon size={15} />
+                New product
+              </AdminLinkButton>
+            )}
+          </>
         }
       />
 

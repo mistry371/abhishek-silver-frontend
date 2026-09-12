@@ -17,6 +17,7 @@ import {
   StoreIcon,
   TagIcon,
   TruckIcon,
+  UploadIcon,
   UserIcon,
 } from "@/components/icons";
 
@@ -36,6 +37,9 @@ export interface AdminNavGroup {
 }
 
 const REPORT_PERMISSIONS = ["reports:sales", "reports:orders", "reports:customers", "reports:products", "reports:inventory", "reports:purchases", "reports:billing", "reports:expenses"];
+
+/** Any permission that unlocks at least one bulk import. */
+const IMPORT_PERMISSIONS = ["products:create", "inventory:adjust", "customers:manage", "vendors:manage", "expenses:create", "catalog:manage_taxonomy", "marketing:manage", "pricing:manage"];
 
 export const adminNav: AdminNavGroup[] = [
   {
@@ -84,7 +88,10 @@ export const adminNav: AdminNavGroup[] = [
   },
   {
     title: "Administration",
-    items: [{ label: "Settings", href: "/admin/settings", icon: SettingsIcon, permissions: ["settings:view", "settings:manage_users", "audit:view"] }],
+    items: [
+      { label: "Bulk import", href: "/admin/imports", icon: UploadIcon, permissions: IMPORT_PERMISSIONS },
+      { label: "Settings", href: "/admin/settings", icon: SettingsIcon, permissions: ["settings:view", "settings:manage_users", "audit:view"] },
+    ],
   },
 ];
 

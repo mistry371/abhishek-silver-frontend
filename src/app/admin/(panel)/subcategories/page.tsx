@@ -6,6 +6,7 @@ import { useAdmin } from "@/components/admin/AdminSession";
 import { DeleteDialog, RowActions } from "@/components/admin/catalogue/shared";
 import { SubcategoryDialog } from "@/components/admin/catalogue/SubcategoryDialog";
 import type { Category, Subcategory } from "@/components/admin/catalogue/types";
+import { ImportAction } from "@/components/admin/ImportDialog";
 import { AdminButton, DataTable, FilterBar, FilterSelect, PageHeader, SearchBox, StatusBadge, type Column } from "@/components/admin/ui";
 import { number } from "@/lib/admin/format";
 import { useAdminResource, useUrlFilters } from "@/lib/admin/hooks";
@@ -62,12 +63,15 @@ export default function SubcategoriesPage() {
         title="Subcategories"
         description="Finer groupings within each jewellery type."
         actions={
-          canManage && (
-            <AdminButton variant="primary" onClick={() => setEditing("new")} disabled={!categories || !hasTypes}>
-              <PlusIcon size={15} />
-              New subcategory
-            </AdminButton>
-          )
+          <>
+            <ImportAction entity={["subcategories", "subcategory"]} onImported={resource.reload} />
+            {canManage && (
+              <AdminButton variant="primary" onClick={() => setEditing("new")} disabled={!categories || !hasTypes}>
+                <PlusIcon size={15} />
+                New subcategory
+              </AdminButton>
+            )}
+          </>
         }
       />
 

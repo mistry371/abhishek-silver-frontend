@@ -8,17 +8,28 @@
 export const ADMIN_PROXY = "/api/admin/proxy";
 export const SESSION_EXPIRED_EVENT = "admin:session-expired";
 
+export interface AdminErrorPayload {
+  code?: string;
+  message?: string;
+  fieldErrors?: Record<string, string>;
+  /** Endpoints may return extra detail, e.g. per-row errors from an import. */
+  [key: string]: unknown;
+}
+
 export class AdminApiError extends Error {
   readonly code: string;
   readonly status: number;
   readonly fieldErrors?: Record<string, string>;
+  /** The whole error body, for endpoints that return more than a message. */
+  readonly details: AdminErrorPayload;
 
-  constructor(status: number, payload: { code?: string; message?: string; fieldErrors?: Record<string, string> }) {
-    super(payload.message || defaultMessage(status));
+  constructor(status: number, payload: AdminErrorPayload) {
+    super(typeof payload.message === "string" && payload.message ? payload.message : defaultMessage(status));
     this.name = "AdminApiError";
     this.status = status;
     this.code = payload.code ?? (status === 403 ? "forbidden" : status === 404 ? "not_found" : status === 401 ? "unauthorized" : "server_error");
     this.fieldErrors = payload.fieldErrors;
+    this.details = payload;
   }
 }
 
@@ -75,7 +86,7 @@ export async function adminRequest<T>(
   }
 
   if (!response.ok) {
-    const payload = (await response.json().catch(() => ({}))) as { code?: string; message?: string; fieldErrors?: Record<string, string> };
+    const payload = (await response.json().catch(() => ({}))) as AdminErrorPayload;
     if (response.status === 401 && typeof window !== "undefined") window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
     throw new AdminApiError(response.status, payload);
   }

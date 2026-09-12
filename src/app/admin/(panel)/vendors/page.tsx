@@ -6,6 +6,7 @@ import { vendorStatusOptions } from "@/components/admin/inventory/options";
 import type { Vendor, VendorListItem } from "@/components/admin/inventory/types";
 import { VendorDetailDialog, VendorFormDialog } from "@/components/admin/inventory/VendorDialogs";
 import { EditIcon } from "@/components/admin/icons";
+import { ImportAction } from "@/components/admin/ImportDialog";
 import { AdminButton, DataTable, FilterBar, FilterSelect, PageHeader, Pagination, SearchBox, StatusBadge, type Column } from "@/components/admin/ui";
 import { PlusIcon } from "@/components/icons";
 import type { Paginated } from "@/lib/admin/client";
@@ -86,12 +87,15 @@ export default function VendorsPage() {
         title="Vendors"
         description="Suppliers you purchase gold and silver stock from. Vendor details are confidential."
         actions={
-          canManage && (
-            <AdminButton variant="primary" onClick={() => setEditing("new")}>
-              <PlusIcon size={15} />
-              New vendor
-            </AdminButton>
-          )
+          <>
+            <ImportAction entity="vendors" onImported={list.reload} />
+            {canManage && (
+              <AdminButton variant="primary" onClick={() => setEditing("new")}>
+                <PlusIcon size={15} />
+                New vendor
+              </AdminButton>
+            )}
+          </>
         }
       />
 

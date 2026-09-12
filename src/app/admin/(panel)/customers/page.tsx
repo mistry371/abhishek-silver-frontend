@@ -7,6 +7,7 @@ import { useAdmin } from "@/components/admin/AdminSession";
 import { CustomerFormDialog } from "@/components/admin/customers/CustomerFormDialog";
 import { customerSourceOptions, customerStatusOptions } from "@/components/admin/customers/shared";
 import type { CustomerRow } from "@/components/admin/customers/types";
+import { ImportAction } from "@/components/admin/ImportDialog";
 import { AdminButton, DataTable, DateInput, FilterBar, FilterSelect, PageHeader, Pagination, SearchBox, StatusBadge, type Column } from "@/components/admin/ui";
 import { PlusIcon } from "@/components/icons";
 import type { Paginated } from "@/lib/admin/client";
@@ -107,12 +108,15 @@ export default function CustomersPage() {
         title="Customers"
         description={latest ? `${number(latest.total)} ${latest.total === 1 ? "customer" : "customers"} · online accounts and walk-in customers in one directory.` : "Online accounts and walk-in customers in one directory."}
         actions={
-          canManage && (
-            <AdminButton variant="primary" onClick={openDialog}>
-              <PlusIcon size={16} />
-              Add customer
-            </AdminButton>
-          )
+          <>
+            <ImportAction entity="customers" onImported={reload} />
+            {canManage && (
+              <AdminButton variant="primary" onClick={openDialog}>
+                <PlusIcon size={16} />
+                Add customer
+              </AdminButton>
+            )}
+          </>
         }
       />
 

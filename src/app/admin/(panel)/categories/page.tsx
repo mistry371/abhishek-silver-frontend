@@ -8,6 +8,7 @@ import { DeleteDialog, RowActions, Thumb } from "@/components/admin/catalogue/sh
 import { SubcategoryDialog } from "@/components/admin/catalogue/SubcategoryDialog";
 import type { Category, CategoryGroup, Subcategory } from "@/components/admin/catalogue/types";
 import { CATEGORY_GROUP_OPTIONS, describeListingRule, groupLabels } from "@/components/admin/catalogue/utils";
+import { ImportAction } from "@/components/admin/ImportDialog";
 import { AdminButton, DataTable, ErrorState, PageHeader, Panel, StatusBadge, Tabs, type Column } from "@/components/admin/ui";
 import { number } from "@/lib/admin/format";
 import { useAdminResource } from "@/lib/admin/hooks";
@@ -71,12 +72,15 @@ export default function CategoriesPage() {
         title="Categories"
         description="Jewellery types organise products. Metal, audience and service categories are landing pages that list products by a rule."
         actions={
-          canManage && (
-            <AdminButton variant="primary" onClick={() => setEditing("new")}>
-              <PlusIcon size={15} />
-              New category
-            </AdminButton>
-          )
+          <>
+            <ImportAction entity={["categories", "category"]} onImported={resource.reload} />
+            {canManage && (
+              <AdminButton variant="primary" onClick={() => setEditing("new")}>
+                <PlusIcon size={15} />
+                New category
+              </AdminButton>
+            )}
+          </>
         }
       />
 

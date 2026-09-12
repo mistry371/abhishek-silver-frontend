@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAdmin } from "@/components/admin/AdminSession";
 import { EditIcon, TrashIcon } from "@/components/admin/icons";
+import { ImportAction } from "@/components/admin/ImportDialog";
 import { CouponDialog, couponPayload, couponScopeSummary, type Coupon } from "@/components/admin/pricing/CouponDialog";
 import { discountLabel } from "@/components/admin/pricing/shared";
 import { AdminButton, ConfirmDialog, DataTable, FilterBar, FilterSelect, Pagination, PageHeader, SearchBox, StatusBadge, type Column } from "@/components/admin/ui";
@@ -116,7 +117,16 @@ export default function CouponsPage() {
 
   return (
     <>
-      <PageHeader title="Coupons" description="Checkout codes with discounts, limits and schedules. Coupon discounts apply at checkout and don’t change website prices." actions={newButton} />
+      <PageHeader
+        title="Coupons"
+        description="Checkout codes with discounts, limits and schedules. Coupon discounts apply at checkout and don’t change website prices."
+        actions={
+          <>
+            <ImportAction entity="coupons" onImported={reload} />
+            {newButton}
+          </>
+        }
+      />
 
       <FilterBar>
         <SearchBox value={values.q} onChange={(q) => setFilters({ q })} placeholder="Search code or description" />

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { ImportAction } from "@/components/admin/ImportDialog";
 import { AdminButton, AdminLinkButton, ErrorState, InlineAlert, PageHeader, StatCard } from "@/components/admin/ui";
 import { InventoryTable } from "@/components/admin/inventory/InventoryTable";
 import type { InventorySummary } from "@/components/admin/inventory/types";
@@ -13,6 +14,8 @@ import { Skeleton } from "@/components/ui/primitives";
 
 export default function InventoryPage() {
   const summary = useAdminResource<InventorySummary>("/inventory/summary");
+  // Remounting the table is the simplest way to re-read stock after an import.
+  const [tableKey, setTableKey] = useState(0);
 
   if (summary.error?.code === "forbidden") {
     return (
@@ -35,6 +38,15 @@ export default function InventoryPage() {
             <AdminLinkButton href="/admin/inventory/stock-movements">Stock movements</AdminLinkButton>
             <AdminLinkButton href="/admin/inventory/low-stock">Low stock</AdminLinkButton>
             <AdminLinkButton href="/admin/inventory/out-of-stock">Out of stock</AdminLinkButton>
+            <ImportAction
+              entity={["inventory", "stock"]}
+              variant="primary"
+              label="Import stock"
+              onImported={() => {
+                summary.reload();
+                setTableKey((value) => value + 1);
+              }}
+            />
           </>
         }
       />
@@ -85,7 +97,7 @@ export default function InventoryPage() {
         <LookupBox />
       </div>
 
-      <InventoryTable />
+      <InventoryTable key={tableKey} />
     </>
   );
 }
