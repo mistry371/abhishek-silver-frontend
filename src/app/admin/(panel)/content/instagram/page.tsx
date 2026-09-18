@@ -13,7 +13,7 @@ export default function InstagramContentPage() {
     <ContentDocumentPage<InstagramDoc>
       path="/content/instagram"
       title="Instagram gallery"
-      description="Square photos shown in the Instagram section. Each tile links to a post or the profile."
+      description="Once Instagram is connected on the server, the homepage shows your latest posts and reels automatically. These square photos are shown only until then, or if Instagram can't be reached. Each tile links to a post or the profile."
       emptyValue={() => ({ posts: [] })}
       meta={(value) => value && <StatusBadge status="active" label={`${value.posts.length} posts`} tone="accent" />}
       notice={

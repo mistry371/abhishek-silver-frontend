@@ -46,6 +46,8 @@ export interface InstagramPost {
   image: ImageAsset;
   url: string;
   caption?: string;
+  /** Set for live posts from Instagram; reels and videos get a play badge. */
+  type?: "post" | "reel" | "video" | "carousel";
 }
 
 export interface TrustItem extends Orderable {

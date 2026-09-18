@@ -13,6 +13,7 @@ import {
   MessageIcon,
   PenIcon,
   PhoneIcon,
+  PlayIcon,
   ScaleIcon,
   ShieldIcon,
   SparkleIcon,
@@ -686,6 +687,11 @@ export function InstagramGallery({ posts, className }: { posts: InstagramPost[];
                 >
                   <InstagramIcon size={22} />
                 </span>
+                {(post.type === "reel" || post.type === "video") && (
+                  <span aria-hidden="true" className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-onyx/55 text-ivory">
+                    <PlayIcon size={12} />
+                  </span>
+                )}
               </a>
             </li>
           ))}

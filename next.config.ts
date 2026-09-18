@@ -22,6 +22,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       // Demo photography. Replace with the business's own media host.
       { protocol: "https", hostname: "images.unsplash.com" },
+      // Latest posts from the business's Instagram account, served by Instagram's CDN.
+      { protocol: "https", hostname: "**.cdninstagram.com" },
+      { protocol: "https", hostname: "**.fbcdn.net" },
       ...(mediaHost ? [{ protocol: "https" as const, hostname: mediaHost }] : []),
       ...(apiUrl
         ? [{ protocol: apiUrl.protocol.replace(":", "") as "http" | "https", hostname: apiUrl.hostname, port: apiUrl.port, pathname: "/uploads/**" }]
