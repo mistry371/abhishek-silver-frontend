@@ -114,6 +114,9 @@ function variantsPayload(state: VariantsState) {
   };
 }
 
+/** Dropdown value that opens the new-category dialog. */
+const NEW_CATEGORY = "__new_category__";
+
 const autoLabel = (row: Pick<VariantRow, "metal" | "purity">) => [purityLabels[row.purity] ?? row.purity, metalLabels[row.metal] ?? row.metal].filter(Boolean).join(" ");
 
 export function ParentProductForm({ parent, onSaved, onReload, aside }: { parent?: ParentProductDetail; onSaved?: (parent: ParentProductDetail) => void; onReload?: () => void; aside?: ReactNode }) {
@@ -180,6 +183,9 @@ export function ParentProductForm({ parent, onSaved, onReload, aside }: { parent
   if (record?.categoryId && record.category && !categoryOptions.some((option) => option.value === record.categoryId)) {
     categoryOptions.unshift({ value: record.categoryId, label: record.category.name });
   }
+  // Last entry in the dropdown opens the new-category dialog instead of selecting anything.
+  const canCreateCategory = editable && can("catalog:manage_taxonomy");
+  if (canCreateCategory) categoryOptions.push({ value: NEW_CATEGORY, label: "+ Create new category…" });
 
   function rowError(index: number, productId: string) {
     return fieldError(ve, `variants.${index}`, `variants.${productId}`);
@@ -328,6 +334,10 @@ export function ParentProductForm({ parent, onSaved, onReload, aside }: { parent
             hint={categoriesRes.error ? `Couldn't load categories: ${categoriesRes.error.message}` : undefined}
             onChange={(event) => {
               const categoryId = event.target.value;
+              if (categoryId === NEW_CATEGORY) {
+                setCreatingCategory(true);
+                return;
+              }
               setForm((previous) => ({
                 ...previous,
                 categoryId,
@@ -335,7 +345,7 @@ export function ParentProductForm({ parent, onSaved, onReload, aside }: { parent
               }));
             }}
           />
-          {editable && can("catalog:manage_taxonomy") && (
+          {canCreateCategory && (
             <button
               type="button"
               onClick={() => setCreatingCategory(true)}
