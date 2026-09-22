@@ -67,7 +67,22 @@ function build(form: CategoryFormState, base?: Category): Record<(typeof KNOWN)[
   };
 }
 
-export function CategoryDialog({ category, onClose, onSaved }: { category?: Category; onClose: () => void; onSaved: () => void }) {
+/**
+ * `lockGroup` keeps a new category a jewellery type — used when it is created
+ * from a product form, where only jewellery types can be chosen.
+ * `onSaved` receives the new category's id when one is created.
+ */
+export function CategoryDialog({
+  category,
+  lockGroup = false,
+  onClose,
+  onSaved,
+}: {
+  category?: Category;
+  lockGroup?: boolean;
+  onClose: () => void;
+  onSaved: (created?: { id: string }) => void;
+}) {
   const [form, setForm] = useState(() => toForm(category));
   const [slugTouched, setSlugTouched] = useState(Boolean(category));
   const [error, setError] = useState<AdminApiError | null>(null);
@@ -85,6 +100,7 @@ export function CategoryDialog({ category, onClose, onSaved }: { category?: Cate
     setSaving(true);
     setError(null);
     try {
+      let created: { id: string } | undefined;
       if (category) {
         if (!changed.length) {
           onClose();
@@ -93,10 +109,10 @@ export function CategoryDialog({ category, onClose, onSaved }: { category?: Cate
         await adminApi.patch(`/categories/${category.id}`, pick(values, changed));
         toast({ title: "Category updated", tone: "success" });
       } else {
-        await adminApi.post("/categories", values);
+        created = await adminApi.post<{ id: string }>("/categories", values);
         toast({ title: "Category created", tone: "success" });
       }
-      onSaved();
+      onSaved(created);
     } catch (caught) {
       setError(asApiError(caught));
     } finally {
@@ -127,6 +143,8 @@ export function CategoryDialog({ category, onClose, onSaved }: { category?: Cate
         className="grid gap-4 sm:grid-cols-2"
         onSubmit={(event) => {
           event.preventDefault();
+          // The dialog can open from inside another form; keep Enter from submitting that one too.
+          event.stopPropagation();
           void save();
         }}
       >
@@ -161,9 +179,9 @@ export function CategoryDialog({ category, onClose, onSaved }: { category?: Cate
           required
           options={CATEGORY_GROUP_OPTIONS}
           value={form.group}
-          disabled={groupLocked}
+          disabled={groupLocked || lockGroup}
           error={fe("group")}
-          hint={groupLocked ? "This category has products, so its group can't change." : undefined}
+          hint={lockGroup ? "Products belong to a jewellery type, so this new category is one." : groupLocked ? "This category has products, so its group can't change." : undefined}
           onChange={(event) => set("group", event.target.value)}
         />
         <TextArea label="Description" maxLength={500} rows={3} containerClassName="sm:col-span-2" value={form.description} error={fe("description")} onChange={(event) => set("description", event.target.value)} />

@@ -13,6 +13,7 @@ import { adminApi, type AdminApiError, type Paginated } from "@/lib/admin/client
 import { metalLabels, money, number, purityLabels } from "@/lib/admin/format";
 import { useAdminResource, useDebouncedValue } from "@/lib/admin/hooks";
 import { cn } from "@/lib/utils";
+import { CategoryDialog } from "./CategoryDialog";
 import { ImageStrip, MutationAlert, OptionGroup, Thumb } from "./shared";
 import type { Category, Collection, ParentProductDetail, ParentProductVariant, ProductListItem } from "./types";
 import { asApiError, fieldError, PARENT_STATUS_OPTIONS, slugify, toggle, unmappedErrors } from "./utils";
@@ -118,6 +119,7 @@ const autoLabel = (row: Pick<VariantRow, "metal" | "purity">) => [purityLabels[r
 export function ParentProductForm({ parent, onSaved, onReload, aside }: { parent?: ParentProductDetail; onSaved?: (parent: ParentProductDetail) => void; onReload?: () => void; aside?: ReactNode }) {
   const router = useRouter();
   const { can } = useAdmin();
+  const [creatingCategory, setCreatingCategory] = useState(false);
 
   // On "new", the design is created first and its options saved second. If the
   // second step fails, the created record is kept here so saving again only
@@ -314,24 +316,36 @@ export function ParentProductForm({ parent, onSaved, onReload, aside }: { parent
             setForm((previous) => ({ ...previous, slug: slug === "" ? slugify(previous.name) : slug }));
           }}
         />
-        <SelectInput
-          label="Category"
-          required
-          placeholder={categoriesRes.loading ? "Loading…" : "Choose a jewellery type"}
-          options={categoryOptions}
-          value={form.categoryId}
-          disabled={!editable}
-          error={fe("categoryId")}
-          hint={categoriesRes.error ? `Couldn't load categories: ${categoriesRes.error.message}` : undefined}
-          onChange={(event) => {
-            const categoryId = event.target.value;
-            setForm((previous) => ({
-              ...previous,
-              categoryId,
-              subcategoryId: typeCategories.find((category) => category.id === categoryId)?.subcategories.some((sub) => sub.id === previous.subcategoryId) ? previous.subcategoryId : "",
-            }));
-          }}
-        />
+        <div>
+          <SelectInput
+            label="Category"
+            required
+            placeholder={categoriesRes.loading ? "Loading…" : "Choose a jewellery type"}
+            options={categoryOptions}
+            value={form.categoryId}
+            disabled={!editable}
+            error={fe("categoryId")}
+            hint={categoriesRes.error ? `Couldn't load categories: ${categoriesRes.error.message}` : undefined}
+            onChange={(event) => {
+              const categoryId = event.target.value;
+              setForm((previous) => ({
+                ...previous,
+                categoryId,
+                subcategoryId: typeCategories.find((category) => category.id === categoryId)?.subcategories.some((sub) => sub.id === previous.subcategoryId) ? previous.subcategoryId : "",
+              }));
+            }}
+          />
+          {editable && can("catalog:manage_taxonomy") && (
+            <button
+              type="button"
+              onClick={() => setCreatingCategory(true)}
+              className="mt-1.5 inline-flex items-center gap-1 text-[0.75rem] text-champagne-deep hover:underline"
+            >
+              <PlusIcon size={13} />
+              Not listed? Create a new category
+            </button>
+          )}
+        </div>
         <SelectInput
           label="Subcategory"
           placeholder={form.categoryId && selectedCategory && selectedCategory.subcategories.length === 0 ? "No subcategories for this type" : "None"}
@@ -645,6 +659,18 @@ export function ParentProductForm({ parent, onSaved, onReload, aside }: { parent
       )}
 
       {picking && <ProductPicker excluded={variants.rows.map((row) => row.productId)} onClose={() => setPicking(false)} onAdd={addProducts} />}
+      {creatingCategory && (
+        <CategoryDialog
+          lockGroup
+          onClose={() => setCreatingCategory(false)}
+          onSaved={(createdCategory) => {
+            setCreatingCategory(false);
+            categoriesRes.reload();
+            // Select the new category straight away; it has no subcategories yet.
+            if (createdCategory?.id) setForm((previous) => ({ ...previous, categoryId: createdCategory.id, subcategoryId: "" }));
+          }}
+        />
+      )}
     </form>
   );
 }
