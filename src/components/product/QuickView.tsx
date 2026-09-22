@@ -16,6 +16,7 @@ type QuickViewState = { status: "loading" } | { status: "ready"; product: Produc
 export function QuickView() {
   const slug = useUIStore((s) => s.quickViewSlug);
   const close = useUIStore((s) => s.closeQuickView);
+  const openQuickView = useUIStore((s) => s.openQuickView);
   const [attempt, setAttempt] = useState(0);
   const requestKey = `${slug}::${attempt}`;
   const [result, setResult] = useState<{ key: string; state: QuickViewState } | null>(null);
@@ -89,10 +90,16 @@ export function QuickView() {
       {state.status === "ready" && (
         <div className="grid md:grid-cols-2">
           <div className="bg-cream md:p-6">
-            <ProductGallery images={state.product.images} video={state.product.video} productName={state.product.name} variant="compact" />
+            <ProductGallery key={state.product.id} images={state.product.images} video={state.product.video} productName={state.product.name} variant="compact" />
           </div>
           <div className="px-5 pb-8 pt-6 md:px-10 md:py-10">
-            <PurchasePanel product={state.product} variant="quickview" onNavigate={close} />
+            <PurchasePanel
+              key={state.product.id}
+              product={state.product}
+              variant="quickview"
+              onNavigate={close}
+              onSelectVariant={(option) => openQuickView(option.slug)}
+            />
           </div>
         </div>
       )}

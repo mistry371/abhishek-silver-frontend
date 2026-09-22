@@ -53,11 +53,11 @@ export default async function ProductPage({ params }: { params: Params }) {
       <section className="container-luxe grid gap-10 pb-20 pt-6 md:pt-8 lg:grid-cols-12 lg:gap-12 xl:gap-20">
         <div className="lg:col-span-7">
           <div className="lg:sticky lg:top-[calc(var(--header-height)+1.5rem)]">
-            <ProductGallery images={product.images} video={product.video} productName={product.name} priority />
+            <ProductGallery key={product.id} images={product.images} video={product.video} productName={product.name} priority />
           </div>
         </div>
         <div className="lg:col-span-5">
-          <PurchasePanel product={product} />
+          <PurchasePanel key={product.id} product={product} />
         </div>
       </section>
 

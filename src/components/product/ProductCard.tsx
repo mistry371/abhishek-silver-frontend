@@ -43,6 +43,10 @@ export function ProductCard({
   const badges = badgePriority.filter((badge) => product.badges.includes(badge)).slice(0, 2);
   const original = product.pricing.originalPrice > product.finalPrice ? product.pricing.originalPrice : undefined;
   const note = availabilityNote[product.availability.status];
+  const { variantCount = 0, priceFrom: lowest, priceTo: highest } = product.parent ?? {};
+  const optionCount = variantCount >= 2 ? variantCount : 0;
+  const priceFrom = optionCount && typeof lowest === "number" && typeof highest === "number" && lowest < highest ? lowest : null;
+  const optionsNote = optionCount > 0 ? `${optionCount} options` : null;
 
   const media = (
     <div
@@ -131,7 +135,15 @@ export function ProductCard({
               <dd className="text-ink-soft">{formatINR(product.makingCharges)}</dd>
             </div>
           </dl>
-          <Price amount={product.finalPrice} original={original} className="mt-3" />
+          {priceFrom !== null ? (
+            <p className="mt-3 type-price text-ink">
+              <span className="text-[0.8125rem] text-muted">From </span>
+              {formatINR(priceFrom)}
+            </p>
+          ) : (
+            <Price amount={product.finalPrice} original={original} className="mt-3" />
+          )}
+          {optionsNote && <p className="mt-1.5 type-body-sm text-muted">{optionsNote}</p>}
           {note && <p className="mt-1.5 type-body-sm text-muted">{note}</p>}
           <div className="mt-5 flex flex-wrap gap-3 md:hidden">
             <Link href={href} className="type-button link-underline-static">
@@ -165,7 +177,15 @@ export function ProductCard({
             {product.name}
           </Link>
         </Heading>
-        <Price amount={product.finalPrice} original={original} size="sm" showSavings={false} className="mt-2" />
+        {priceFrom !== null ? (
+          <p className="mt-2 text-[0.875rem] font-medium tabular-nums text-ink">
+            <span className="font-normal text-muted">From </span>
+            {formatINR(priceFrom)}
+          </p>
+        ) : (
+          <Price amount={product.finalPrice} original={original} size="sm" showSavings={false} className="mt-2" />
+        )}
+        {optionsNote && <p className="mt-1 text-[0.75rem] text-muted">{optionsNote}</p>}
         {note && <p className="mt-1 type-body-sm text-muted">{note}</p>}
       </div>
     </article>

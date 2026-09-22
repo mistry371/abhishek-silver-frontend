@@ -28,10 +28,11 @@ import { cn, formatINR, formatWeight } from "@/lib/utils";
 import { whatsappMessages, whatsappUrl } from "@/lib/whatsapp";
 import { useCartStore } from "@/stores/cart";
 import { useUIStore } from "@/stores/ui";
-import type { InventoryAvailability, PriceBreakdown, Product } from "@/types/catalog";
+import type { InventoryAvailability, PriceBreakdown, Product, ProductDesignVariant } from "@/types/catalog";
 import { CompareButton, WishlistButton } from "./ProductActions";
 import { PriceBreakdownTable, SpecificationList } from "./ProductDetails";
 import { ProductEnquiryDialog } from "./ProductEnquiryDialog";
+import { designVariants, VariantSelector } from "./VariantSelector";
 
 interface LiveState {
   pricing: PriceBreakdown;
@@ -44,10 +45,13 @@ export function PurchasePanel({
   product,
   variant = "page",
   onNavigate,
+  onSelectVariant,
 }: {
   product: Product;
   variant?: "page" | "quickview";
   onNavigate?: () => void;
+  /** Called when another option of the design is chosen. Defaults to opening its product page. */
+  onSelectVariant?: (variant: ProductDesignVariant) => void;
 }) {
   const router = useRouter();
   const ids = useId();
@@ -222,6 +226,13 @@ export function PurchasePanel({
     }
   }
 
+  const options = designVariants(product);
+  const currentOption = options.length >= 2 ? options.find((option) => option.id === product.id) : undefined;
+  const metalPurity = metalPurityLabel(product.metal, product.purity);
+  // A custom label such as "Small" still needs the metal beside it; "18K Gold" already says it.
+  const eyebrow = currentOption
+    ? [currentOption.label, /gold|silver/i.test(currentOption.label) ? null : metalPurity, product.category.name].filter(Boolean).join(" · ")
+    : `${metalPurity} · ${product.category.name}`;
   const badges = badgePriority.filter((b) => product.badges.includes(b));
   const TitleTag = isPage ? "h1" : "h2";
   const whatsappHref = whatsappUrl(whatsappMessages.product(product, sizeLabel(size)));
@@ -236,7 +247,7 @@ export function PurchasePanel({
         </div>
       )}
       <p className="text-[0.6875rem] uppercase tracking-[0.18em] text-champagne-deep">
-        {metalPurityLabel(product.metal, product.purity)} · {product.category.name}
+        {eyebrow}
       </p>
       <TitleTag id={isPage ? undefined : "quick-view-title"} className={cn("mt-3 text-balance text-ink", isPage ? "type-h1" : "type-h2")}>
         {product.name}
@@ -286,6 +297,8 @@ export function PurchasePanel({
       </dl>
 
       <AvailabilityLabel status={live.availability.status} message={live.availability.message} className="mt-5" />
+
+      {options.length >= 2 && <VariantSelector variants={options} currentId={product.id} onSelect={onSelectVariant} className="mt-7" />}
 
       {hasSizes && (
         <fieldset

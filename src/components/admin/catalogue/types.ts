@@ -72,6 +72,9 @@ export interface ProductListItem {
   updatedAt: string;
   purchasePrice?: number | null;
   vendorId?: string | null;
+  /** The parent product (design) this product is an option of. */
+  parent?: { id: string; name: string } | null;
+  variantLabel?: string | null;
 }
 
 export interface ProductDetail {
@@ -121,6 +124,60 @@ export interface ProductDetail {
   stock: { total: number; levels: { locationId: string; quantity: number }[]; stockStatus: StockStatus };
   pricing: PriceBreakdown | null;
   pricingError: string | null;
+  /** The parent product (design) this product is an option of. */
+  parent?: { id: string; name: string } | null;
+  /** This product's label within its design, e.g. "18K Gold". */
+  variantLabel?: string | null;
+}
+
+/* Parent products: one design whose options (variants) are existing products. */
+
+export type ParentProductStatus = "active" | "draft";
+
+export interface ParentProductListItem {
+  id: string;
+  slug: string;
+  name: string;
+  status: ParentProductStatus;
+  category: { id: string; name: string } | null;
+  image: ImageAsset | null;
+  variantCount: number;
+  defaultVariantId: string | null;
+  updatedAt: string;
+}
+
+export interface ParentProductVariant {
+  productId: string;
+  sku: string;
+  name: string;
+  slug: string;
+  metal: Metal;
+  purity: Purity;
+  /** The label shown on the website (custom label, or one made from metal and purity). */
+  label: string;
+  customLabel: string | null;
+  status: ProductStatus;
+  stock: number;
+  price: number | null;
+}
+
+export interface ParentProductDetail {
+  id: string;
+  slug: string;
+  name: string;
+  shortDescription: string | null;
+  description: string | null;
+  categoryId: string | null;
+  subcategoryId: string | null;
+  collectionIds: string[];
+  images: ImageAsset[];
+  seo: SeoMeta | null;
+  status: ParentProductStatus;
+  defaultVariantId: string | null;
+  variants: ParentProductVariant[];
+  category?: { id: string; name: string } | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Subcategory {

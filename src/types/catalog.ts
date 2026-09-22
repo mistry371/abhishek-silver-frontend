@@ -154,13 +154,33 @@ export interface CustomizationOption {
   options?: { value: string; label: string }[];
 }
 
-export interface ProductVariant {
+/** The design a product belongs to, when it is one option of an active parent product. */
+export interface ProductParentRef {
   id: ID;
+  slug: string;
+  name: string;
+}
+
+/** Parent details on listing cards, where one card stands for the whole design. */
+export interface ProductSummaryParent extends ProductParentRef {
+  variantCount: number;
+  /** Lowest and highest final price across the design's options. */
+  priceFrom: number;
+  priceTo: number;
+}
+
+/** One option of a design (e.g. "18K Gold"), shown in the product page's variant selector. */
+export interface ProductDesignVariant {
+  id: ID;
+  slug: string;
   sku: string;
-  size?: string;
-  grossWeight: number;
-  netWeight: number;
+  label: string;
+  metal: MetalType;
+  purity: PurityCode;
+  /** Final price — the same figure as `finalPrice` on the product. */
+  price: number | null;
   availability: InventoryAvailability;
+  image: ImageAsset | null;
 }
 
 export type ProductBadge = "new" | "best_seller" | "trending" | "sale" | "limited" | "out_of_stock";
@@ -207,7 +227,10 @@ export interface Product {
   sizes: ProductSizeOption[];
   /** Size the listed price and weights refer to. */
   defaultSize?: string | null;
-  variants: ProductVariant[];
+  /** The design this product belongs to. Only set when its parent product is active. */
+  parent?: ProductParentRef | null;
+  /** The design's options in display order, including this product. Empty for standalone products. */
+  variants?: ProductDesignVariant[];
   customization: CustomizationOption[];
 
   /** Merchandising badges exactly as supplied by admin data. */
@@ -224,7 +247,16 @@ export interface Product {
 }
 
 /** Lightweight shape for listings, carousels and search results. */
-export type ProductSummary = Pick<
+export type ProductSummary = ProductSummaryFields & {
+  /**
+   * Set when this card stands for a design with several options. The counts
+   * and price range are missing when a full product was stored as a summary
+   * (e.g. added to the wishlist from its product page).
+   */
+  parent?: (ProductParentRef & Partial<Omit<ProductSummaryParent, keyof ProductParentRef>>) | null;
+};
+
+type ProductSummaryFields = Pick<
   Product,
   | "id"
   | "name"

@@ -20,6 +20,7 @@ import {
   UploadIcon,
   UserIcon,
 } from "@/components/icons";
+import { LayersIcon } from "@/components/admin/icons";
 
 type IconLike = (props: { size?: number; className?: string }) => React.JSX.Element;
 
@@ -60,6 +61,7 @@ export const adminNav: AdminNavGroup[] = [
     title: "Catalogue",
     items: [
       { label: "Products", href: "/admin/products", icon: GemIcon, permissions: ["products:view"] },
+      { label: "Parent products", href: "/admin/parent-products", icon: LayersIcon, permissions: ["products:view"] },
       { label: "Categories", href: "/admin/categories", icon: ListIcon, permissions: ["products:view", "catalog:manage_taxonomy"] },
       { label: "Collections", href: "/admin/collections", icon: SparkleIcon, permissions: ["products:view", "catalog:manage_taxonomy"] },
       { label: "Pricing", href: "/admin/pricing", icon: ScaleIcon, permissions: ["pricing:view"] },

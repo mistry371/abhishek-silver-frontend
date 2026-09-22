@@ -205,19 +205,8 @@ export function toProduct(record: MockProductRecord): Product {
         }))
       : [],
     defaultSize: variant.size ?? null,
-    variants: table
-      ? table.values.map((value) => {
-          const v = resolveVariant(record, value);
-          return {
-            id: `${record.id}-${value}`,
-            sku: `${record.sku}-${value.replace(".", "")}`,
-            size: value,
-            grossWeight: v.grossWeight,
-            netWeight: v.netWeight,
-            availability: resolveAvailability(record, value),
-          };
-        })
-      : [],
+    parent: null,
+    variants: [],
     customization: (record.customization ?? []).map((key) => customizationCatalog[key]),
     badges: resolveBadges(record),
     featured: Boolean(record.flags?.featured),
@@ -258,6 +247,7 @@ export function toSummary(product: Product): ProductSummary {
     defaultSize: product.defaultSize,
     customization: product.customization,
     badges: product.badges,
+    parent: null,
     createdAt: product.createdAt,
   };
 }
