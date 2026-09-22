@@ -263,7 +263,13 @@ export function ImportDialog({
       }
     } catch (caught) {
       setRejected(rowErrorsFrom(caught));
-      setFailure(errorMessage(caught));
+      // 502/504 means the hosting cut the request off before the server finished — usually a large file.
+      const timedOut = caught instanceof AdminApiError && (caught.status === 502 || caught.status === 504) && !caught.details?.message;
+      setFailure(
+        timedOut
+          ? `The server took too long to ${mode === "preview" ? "check" : "import"} this file. Split it into smaller files (about 10–15 rows each) and import them one after another. Nothing was imported.`
+          : errorMessage(caught),
+      );
     } finally {
       setBusy(null);
     }
