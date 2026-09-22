@@ -120,7 +120,8 @@ export function productJsonLd(product: Product) {
     name: product.name,
     sku: product.sku,
     description: product.description,
-    image: product.images.map((image) => image.url),
+    // Photos stored on the site itself are relative ("/catalogue/…"); search engines need full addresses.
+    image: product.images.map((image) => (image.url.startsWith("/") ? absoluteUrl(image.url) : image.url)),
     category: product.category.name,
     material: metalPurityLabel(product.metal, product.purity),
     brand: { "@type": "Brand", name: siteConfig.name },
