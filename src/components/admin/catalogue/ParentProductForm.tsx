@@ -48,6 +48,8 @@ interface VariantRow {
   status: string;
   stock: number;
   price: number | null;
+  /** Set when the product is being taken from another design, which loses it on save. */
+  movedFrom?: string | null;
 }
 
 interface VariantsState {
@@ -111,6 +113,8 @@ function variantsPayload(state: VariantsState) {
   return {
     variants: state.rows.map((row) => ({ productId: row.productId, label: row.customLabel.trim() || null })),
     defaultVariantId: state.rows.some((row) => row.productId === state.defaultVariantId) ? state.defaultVariantId : (state.rows[0]?.productId ?? null),
+    // Products picked from another design are taken from it.
+    move: state.rows.some((row) => Boolean(row.movedFrom)),
   };
 }
 
@@ -227,6 +231,7 @@ export function ParentProductForm({ parent, onSaved, onReload, aside }: { parent
           status: product.status,
           stock: product.stock,
           price: product.finalPrice,
+          movedFrom: product.parent && product.parent.id !== record?.id ? product.parent.name : null,
         })),
     ]);
     setPicking(false);
@@ -529,6 +534,7 @@ export function ParentProductForm({ parent, onSaved, onReload, aside }: { parent
                             {row.name}
                           </Link>
                           <p className="mt-0.5 text-[0.75rem] text-muted">{row.sku}</p>
+                          {row.movedFrom && <p className="mt-0.5 text-[0.75rem] text-champagne-deep">Moving here from “{row.movedFrom}” when you save.</p>}
                         </td>
                         <td className="whitespace-nowrap px-3 py-2.5">
                           <span>{metalLabels[row.metal] ?? row.metal}</span>
@@ -668,7 +674,7 @@ export function ParentProductForm({ parent, onSaved, onReload, aside }: { parent
         </div>
       )}
 
-      {picking && <ProductPicker excluded={variants.rows.map((row) => row.productId)} onClose={() => setPicking(false)} onAdd={addProducts} />}
+      {picking && <ProductPicker excluded={variants.rows.map((row) => row.productId)} parentId={record?.id} onClose={() => setPicking(false)} onAdd={addProducts} />}
       {creatingCategory && (
         <CategoryDialog
           lockGroup
@@ -689,14 +695,14 @@ export function ParentProductForm({ parent, onSaved, onReload, aside }: { parent
 /* Product picker                                                      */
 /* ------------------------------------------------------------------ */
 
-const PICKER_PAGE_SIZE = 20;
+const PICKER_PAGE_SIZE = 50;
 
 /** Searches products that aren't in any design yet. Render conditionally so the selection resets each time. */
-function ProductPicker({ excluded, onClose, onAdd }: { excluded: string[]; onClose: () => void; onAdd: (products: ProductListItem[]) => void }) {
+function ProductPicker({ excluded, parentId, onClose, onAdd }: { excluded: string[]; parentId?: string; onClose: () => void; onAdd: (products: ProductListItem[]) => void }) {
   const [search, setSearch] = useState("");
   const [chosen, setChosen] = useState<ProductListItem[]>([]);
   const q = useDebouncedValue(search.trim(), 300);
-  const query = useMemo(() => ({ standalone: true, q, pageSize: PICKER_PAGE_SIZE }), [q]);
+  const query = useMemo(() => ({ q, pageSize: PICKER_PAGE_SIZE }), [q]);
   const results = useAdminResource<Paginated<ProductListItem>>("/products", query);
   const items = (results.latest?.items ?? []).filter((product) => !excluded.includes(product.id));
   const isChosen = (id: string) => chosen.some((product) => product.id === id);
@@ -707,7 +713,7 @@ function ProductPicker({ excluded, onClose, onAdd }: { excluded: string[]; onClo
       onClose={onClose}
       size="lg"
       title="Add products to this design"
-      description="Only products that aren't already part of a design are listed."
+      description="Every product is listed. One that already belongs to another design says so, and adding it moves it here."
       footer={
         <>
           <AdminButton variant="ghost" onClick={onClose}>
@@ -720,7 +726,26 @@ function ProductPicker({ excluded, onClose, onAdd }: { excluded: string[]; onClo
       }
     >
       <SearchBox value={search} onChange={setSearch} placeholder="Search by name or SKU" className="w-full" />
-      <div className="mt-4 max-h-[26rem] overflow-y-auto border border-line">
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <label className="flex cursor-pointer items-center gap-2 text-[0.8125rem] text-ink-soft">
+          <input
+            type="checkbox"
+            className="h-4 w-4 accent-ink"
+            disabled={items.length === 0}
+            checked={items.length > 0 && items.every((product) => isChosen(product.id))}
+            onChange={(event) =>
+              setChosen((previous) =>
+                event.target.checked
+                  ? [...previous, ...items.filter((product) => !previous.some((item) => item.id === product.id))]
+                  : previous.filter((item) => !items.some((product) => product.id === item.id)),
+              )
+            }
+          />
+          Select all {items.length || ""} shown
+        </label>
+        {chosen.length > 0 && <span className="text-[0.75rem] text-muted">{chosen.length} selected</span>}
+      </div>
+      <div className="mt-3 max-h-[26rem] overflow-y-auto border border-line">
         {results.error && !results.latest ? (
           <div className="p-4">
             <InlineAlert>
@@ -733,7 +758,7 @@ function ProductPicker({ excluded, onClose, onAdd }: { excluded: string[]; onClo
         ) : !results.latest ? (
           <LoadingBlock rows={4} className="p-4" />
         ) : items.length === 0 ? (
-          <p className="px-4 py-8 text-center text-[0.8125rem] text-muted">{q ? `No products match “${q}”.` : "Every product is already part of a design."}</p>
+          <p className="px-4 py-8 text-center text-[0.8125rem] text-muted">{q ? `No products match “${q}”.` : "This design already holds every product."}</p>
         ) : (
           <ul className={cn("divide-y divide-line", results.loading && "opacity-60")}>
             {items.map((product) => (
@@ -751,6 +776,9 @@ function ProductPicker({ excluded, onClose, onAdd }: { excluded: string[]; onClo
                     <span className="block text-[0.75rem] text-muted">
                       {product.sku} · {metalLabels[product.metal] ?? product.metal} {purityLabels[product.purity] ?? product.purity}
                     </span>
+                    {product.parent && product.parent.id !== parentId && (
+                      <span className="mt-0.5 block truncate text-[0.75rem] text-champagne-deep">In “{product.parent.name}” — adding moves it here</span>
+                    )}
                   </span>
                   <span className="hidden text-right sm:block">
                     <span className="block tabular-nums text-ink">{product.finalPrice === null ? "—" : money(product.finalPrice)}</span>
