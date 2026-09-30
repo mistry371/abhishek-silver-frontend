@@ -60,7 +60,14 @@ export function ProductGallery({
   }
 
   return (
-    <div className={cn("grid gap-4", variant === "page" && count > 1 && "md:grid-cols-[4.5rem_1fr] lg:grid-cols-[5.5rem_1fr] lg:gap-5")}>
+    <div
+      className={cn(
+        "grid gap-4",
+        // Capped on large screens so the photo stays a tidy portrait instead of filling the whole screen.
+        variant === "page" && "lg:max-w-[34rem] xl:max-w-[38rem]",
+        variant === "page" && count > 1 && "md:grid-cols-[4.5rem_1fr] lg:grid-cols-[5.5rem_1fr] lg:gap-5",
+      )}
+    >
       {variant === "page" && count > 1 && (
         <ul className="order-2 hidden gap-3 md:order-1 md:flex md:flex-col" aria-label="Product media">
           {slides.map((slide, index) => (
@@ -119,7 +126,7 @@ export function ProductGallery({
                     alt={slide.image.alt}
                     fill
                     priority={priority && index === 0}
-                    sizes={variant === "page" ? "(min-width: 1024px) 48vw, 100vw" : "(min-width: 768px) 45vw, 100vw"}
+                    sizes={variant === "page" ? "(min-width: 1280px) 500px, (min-width: 1024px) 420px, 100vw" : "(min-width: 768px) 45vw, 100vw"}
                     className="object-cover"
                   />
                   {variant === "page" && zoom && index === active && (
