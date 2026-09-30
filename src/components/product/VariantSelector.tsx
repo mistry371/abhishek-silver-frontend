@@ -16,7 +16,12 @@ export function designVariants(product: Pick<Product, "variants">): ProductDesig
 }
 
 const soldOut = (variant: ProductDesignVariant) => variant.availability.status === "out_of_stock" || variant.availability.status === "unavailable";
-const cardName = (variant: ProductDesignVariant) => variant.name || variant.label;
+/**
+ * The label names the option ("Radha Krishna", "22K Gold") while the name is the
+ * whole product, which repeats the design's name on every card. Labels are
+ * unique within a design, so the label wins wherever there is one.
+ */
+const cardName = (variant: ProductDesignVariant) => variant.label || variant.name;
 
 /** Above this many options the grid scrolls instead of growing down the page. */
 const SCROLL_FROM = 9;
