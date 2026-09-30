@@ -169,11 +169,14 @@ export interface ProductSummaryParent extends ProductParentRef {
   priceTo: number;
 }
 
-/** One option of a design (e.g. "18K Gold"), shown in the product page's variant selector. */
+/** One sub-product of a group, shown as a picture card in the product page's selector. */
 export interface ProductDesignVariant {
   id: ID;
   slug: string;
   sku: string;
+  /** The sub-product's own product name, shown on its card. */
+  name: string;
+  /** Short label for the option (e.g. "18K Gold"), used in the page's eyebrow line. */
   label: string;
   metal: MetalType;
   purity: PurityCode;

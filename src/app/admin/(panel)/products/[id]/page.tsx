@@ -43,8 +43,8 @@ export default function EditProductPage() {
             <StatusBadge status={product.stock.stockStatus} />
             {product.parent && (
               <span className="text-[0.75rem] text-muted">
-                Variant of{" "}
-                <Link href={`/admin/parent-products/${product.parent.id}`} className="text-champagne-deep hover:underline">
+                Sub-product of{" "}
+                <Link href={`/admin/products/${product.parent.id}`} className="text-champagne-deep hover:underline">
                   {product.parent.name}
                 </Link>
                 {product.variantLabel && <> · shown as “{product.variantLabel}”</>}

@@ -11,6 +11,7 @@ import { puritiesByMetal, weight } from "@/lib/admin/format";
 import { useAdminResource } from "@/lib/admin/hooks";
 import { cn } from "@/lib/utils";
 import { ImageStrip, MutationAlert, OptionGroup, PriceBreakdownView } from "./shared";
+import { SubProductsPanel } from "./SubProductsPanel";
 import type { Category, Collection, MerchandisingFlags, ProductDetail, StockLocation, VendorOption } from "./types";
 import {
   asApiError,
@@ -754,6 +755,9 @@ export function ProductForm({ product, onSaved, onReload, aside }: { product?: P
           onChange={(event) => set("videoUrl", event.target.value)}
         />
       </FormSection>
+
+      {/* Saves on its own, so it sits outside the field diff above. */}
+      {product && <SubProductsPanel product={product} />}
 
       <FormSection title="Merchandising" description={lockedNote("products:edit_merchandising") ?? "Controls badges and where the product appears on the website."}>
         <OptionGroup legend="Flags" error={fe("flags")} disabled={!editable("flags")}>

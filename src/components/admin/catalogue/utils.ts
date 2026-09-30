@@ -10,11 +10,6 @@ export const PRODUCT_STATUS_OPTIONS: Option[] = [
   { value: "disabled", label: "Disabled" },
 ];
 
-export const PARENT_STATUS_OPTIONS: Option[] = [
-  { value: "active", label: "Active" },
-  { value: "draft", label: "Draft" },
-];
-
 export const STOCK_FILTER_OPTIONS: Option[] = [
   { value: "in", label: "In stock" },
   { value: "low", label: "Low stock" },

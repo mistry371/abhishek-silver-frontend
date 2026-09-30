@@ -72,7 +72,7 @@ export interface ProductListItem {
   updatedAt: string;
   purchasePrice?: number | null;
   vendorId?: string | null;
-  /** The parent product (design) this product is an option of. */
+  /** The main product this one is a sub-product of. */
   parent?: { id: string; name: string } | null;
   variantLabel?: string | null;
 }
@@ -124,60 +124,38 @@ export interface ProductDetail {
   stock: { total: number; levels: { locationId: string; quantity: number }[]; stockStatus: StockStatus };
   pricing: PriceBreakdown | null;
   pricingError: string | null;
-  /** The parent product (design) this product is an option of. */
+  /** The main product this one is a sub-product of. */
   parent?: { id: string; name: string } | null;
-  /** This product's label within its design, e.g. "18K Gold". */
+  /** This product's label within its group, e.g. "18K Gold". */
   variantLabel?: string | null;
 }
 
-/* Parent products: one design whose options (variants) are existing products. */
+/* Sub-products: real products grouped under one main product. */
 
-export type ParentProductStatus = "active" | "draft";
-
-export interface ParentProductListItem {
+/** A reference to a product, as the sub-products endpoints return it. */
+export interface ProductRef {
   id: string;
-  slug: string;
+  sku: string;
   name: string;
-  status: ParentProductStatus;
-  category: { id: string; name: string } | null;
-  image: ImageAsset | null;
-  variantCount: number;
-  defaultVariantId: string | null;
-  updatedAt: string;
 }
 
-export interface ParentProductVariant {
+export interface SubProduct {
   productId: string;
   sku: string;
   name: string;
   slug: string;
-  metal: Metal;
-  purity: Purity;
-  /** The label shown on the website (custom label, or one made from metal and purity). */
-  label: string;
-  customLabel: string | null;
-  status: ProductStatus;
-  stock: number;
+  image: ImageAsset | null;
   price: number | null;
+  stock: number;
+  status: ProductStatus;
 }
 
-export interface ParentProductDetail {
-  id: string;
-  slug: string;
-  name: string;
-  shortDescription: string | null;
-  description: string | null;
-  categoryId: string | null;
-  subcategoryId: string | null;
-  collectionIds: string[];
-  images: ImageAsset[];
-  seo: SeoMeta | null;
-  status: ParentProductStatus;
-  defaultVariantId: string | null;
-  variants: ParentProductVariant[];
-  category?: { id: string; name: string } | null;
-  createdAt?: string;
-  updatedAt?: string;
+/** Response of every `/products/:id/sub-products` endpoint. */
+export interface SubProducts {
+  main: ProductRef & { image: ImageAsset | null };
+  /** Set when this product is itself a sub-product of another one. */
+  belongsTo: ProductRef | null;
+  items: SubProduct[];
 }
 
 export interface Subcategory {
