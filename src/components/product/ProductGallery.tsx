@@ -126,6 +126,7 @@ export function ProductGallery({
                     alt={slide.image.alt}
                     fill
                     priority={priority && index === 0}
+                    quality={90}
                     sizes={variant === "page" ? "(min-width: 1280px) 500px, (min-width: 1024px) 420px, 100vw" : "(min-width: 768px) 45vw, 100vw"}
                     className="object-cover"
                   />
@@ -269,6 +270,7 @@ function Lightbox({
                 src={slide.image.url}
                 alt={slide.image.alt}
                 fill
+                quality={90}
                 sizes="100vw"
                 className="object-contain transition-transform duration-500 ease-luxe"
                 style={{ transform: zoomed ? "scale(2.2)" : "scale(1)", transformOrigin: origin }}

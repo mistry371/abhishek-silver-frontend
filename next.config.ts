@@ -17,6 +17,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     formats: ["image/avif", "image/webp"],
+    // 75 is the default; 90 is for product photography, where engraving and
+    // stone detail have to survive the re-encode.
+    qualities: [75, 90],
     // Allows the local API (localhost) as an image source during development only.
     dangerouslyAllowLocalIP: process.env.NODE_ENV !== "production",
     remotePatterns: [
